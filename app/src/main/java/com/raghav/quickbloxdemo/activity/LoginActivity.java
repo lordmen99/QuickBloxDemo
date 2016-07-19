@@ -18,8 +18,8 @@ import com.quickblox.users.model.QBUser;
 import com.raghav.quickbloxdemo.R;
 import com.raghav.quickbloxdemo.support.Const;
 import com.raghav.quickbloxdemo.support.PrefsHelper;
-import com.raghav.quickbloxdemo.support.QBListener;
 import com.raghav.quickbloxdemo.support.SupportMethods;
+import com.raghav.quickbloxdemo.support.listener.QBAppListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -78,14 +78,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void signIn() {
-        progress = SupportMethods.showProgressDialog(progress, context);
-        if (!progress.isShowing())
-            progress.show();
+        progress = SupportMethods.showProgressDialog(progress, context, "login signin");
 
-        SupportMethods.createSession(new QBListener() {
+        SupportMethods.createAppSession(new QBAppListener() {
             @Override
-            public void onTaskCompleted(int sessionSuccess) {
-                if (sessionSuccess == 1) {
+            public void onTaskCompleted(int sessionStatus) {
+                if (sessionStatus == 1) {
                     final QBUser user = new QBUser();
                     user.setEmail(email);
                     user.setPassword(password);
@@ -93,18 +91,21 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(QBUser user, Bundle args) {
                             Log.d(Const.ErrorTag, "onSuccess:" + "user login");
+                            if (!SupportMethods.isLoggedIn())
+                                SupportMethods.saveCredentials(email, password);
+                            SupportMethods.hideProgressDialog(progress, "login loggedin");
                             gotoUserList();
-                            progress.dismiss();
                         }
 
                         @Override
                         public void onError(QBResponseException error) {
                             Log.d(Const.ErrorTag, "onError:" + error.getMessage());
                             SupportMethods.showSnackBar(scrollView, error.getMessage());
-                            progress.dismiss();
+                            SupportMethods.hideProgressDialog(progress, "login login error");
                         }
                     });
-                } else if (sessionSuccess == 3) {
+                } else if (sessionStatus == 3) {
+                    SupportMethods.showSnackBar(scrollView, "Please Wait...");
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -112,13 +113,11 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }, 5000);
                 } else {
-                    progress.dismiss();
+                    SupportMethods.hideProgressDialog(progress, "login total session error");
                     Log.d(Const.ErrorTag, "register:" + "Error in QBSession Creation");
                 }
             }
         });
-
-
     }
 
     private void gotoUserList() {

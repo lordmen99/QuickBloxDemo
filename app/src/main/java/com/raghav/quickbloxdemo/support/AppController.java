@@ -23,6 +23,6 @@ public class AppController extends Application {
         QBSettings.getInstance().init(getApplicationContext(), Const.QBCreds.APP_ID, Const.QBCreds.AUTH_KEY, Const.QBCreds.AUTH_SECRET);
         QBSettings.getInstance().setAccountKey(Const.QBCreds.ACCOUNT_KEY);
 
-        SupportMethods.createSession(null);
+        SupportMethods.createAppSession(null);
     }
 }

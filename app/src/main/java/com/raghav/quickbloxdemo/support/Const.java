@@ -7,6 +7,7 @@ public class Const {
     public static final String ErrorTag = "ErrorTag";
     public static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     public static final String QBTAG = "SLK";
+    public static String UserID = "UserID";
 
     public class QBCreds {
 

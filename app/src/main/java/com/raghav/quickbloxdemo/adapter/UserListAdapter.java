@@ -7,15 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.quickblox.users.model.QBUser;
 import com.raghav.quickbloxdemo.R;
 
 import java.util.ArrayList;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.DataObjectHolder> {
     private static MyClickListener myClickListener;
-    private ArrayList<String> users;
+    private ArrayList<QBUser> users;
 
-    public UserListAdapter(ArrayList<String> users) {
+    public UserListAdapter(ArrayList<QBUser> users) {
         this.users = users;
     }
 
@@ -37,12 +38,16 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.DataOb
 
     @Override
     public void onBindViewHolder(DataObjectHolder holder, int position) {
-        holder.txtUserName.setText(users.get(position));
+        holder.txtUserName.setText(users.get(position).getEmail());
     }
 
-    public void addItem(String s, int index) {
+    public void addItem(QBUser s, int index) {
         users.add(s);
         notifyItemInserted(index);
+    }
+
+    public QBUser getItem(int i) {
+        return users.get(i);
     }
 
     public void deleteItem(int index) {

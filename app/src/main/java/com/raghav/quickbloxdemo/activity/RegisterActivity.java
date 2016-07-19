@@ -18,8 +18,8 @@ import com.quickblox.users.QBUsers;
 import com.quickblox.users.model.QBUser;
 import com.raghav.quickbloxdemo.R;
 import com.raghav.quickbloxdemo.support.Const;
-import com.raghav.quickbloxdemo.support.QBListener;
 import com.raghav.quickbloxdemo.support.SupportMethods;
+import com.raghav.quickbloxdemo.support.listener.QBAppListener;
 
 /**
  * Created by raghav.satyadev on 18/7/16.
@@ -50,13 +50,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void register(final View view) {
-        progress = SupportMethods.showProgressDialog(progress, context);
-        if (!progress.isShowing())
-            progress.show();
-        SupportMethods.createSession(new QBListener() {
+        progress = SupportMethods.showProgressDialog(progress, context, "register register");
+        SupportMethods.createAppSession(new QBAppListener() {
             @Override
-            public void onTaskCompleted(int sessionSuccess) {
-                if (sessionSuccess == 1) {
+            public void onTaskCompleted(int sessionStatus) {
+                if (sessionStatus == 1) {
                     if (validation(view)) {
                         final QBUser user = new QBUser(username, password);
 
@@ -72,18 +70,18 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onSuccess(QBUser user, Bundle args) {
                                 Log.d(Const.ErrorTag, "onSuccess:" + "user Registered");
                                 login();
-                                progress.dismiss();
+                                SupportMethods.hideProgressDialog(progress, "register signup success");
                             }
 
                             @Override
                             public void onError(QBResponseException errors) {
                                 Log.d(Const.ErrorTag, "onError:" + errors.getMessage());
                                 SupportMethods.showSnackBar(scrollView, errors.getMessage());
-                                progress.dismiss();
+                                SupportMethods.hideProgressDialog(progress, "register user signup error");
                             }
                         });
                     }
-                } else if (sessionSuccess == 3) {
+                } else if (sessionStatus == 3) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -91,7 +89,7 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     }, 5000);
                 } else {
-                    progress.dismiss();
+                    SupportMethods.hideProgressDialog(progress, "register app session error");
                     Log.d(Const.ErrorTag, "register:" + "Error in QBSession Creation");
                 }
             }

@@ -15,8 +15,7 @@
         android:layout_toStartOf="@+id/btnStatus"
         android:gravity="center"
         android:textColor="@android:color/black"
-        android:textSize="@dimen/textSize15"
-        android:textStyle="bold" />
+        android:textSize="@dimen/textSize18" />
 
     <android.support.v7.widget.AppCompatImageButton
         android:id="@+id/btnStatus"

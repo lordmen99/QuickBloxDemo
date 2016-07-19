@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.text.TextUtils;
 import android.util.Log;
@@ -19,36 +20,64 @@ import com.quickblox.auth.QBAuth;
 import com.quickblox.auth.model.QBSession;
 import com.quickblox.core.QBEntityCallback;
 import com.quickblox.core.exception.QBResponseException;
+import com.quickblox.users.model.QBUser;
+import com.raghav.quickbloxdemo.support.listener.QBAppListener;
+import com.raghav.quickbloxdemo.support.listener.QBUserListener;
 
 /**
  * Created by raghav.satyadev on 18/7/16.
  */
 public class SupportMethods {
-    public static int sessionSuccess = 0;
+    public static int sessionApp = 0;
+    public static int sessionUser = 0;
 
-    public static void createSession(final QBListener qbListener) {
-        if (sessionSuccess != 1 && sessionSuccess != 3) {
-            sessionSuccess = 3;
-            Log.d(Const.ErrorTag, "createSession:");
+    public static void createAppSession(final QBAppListener qbAppListener) {
+        if (sessionApp != 1 && sessionApp != 3) {
+            sessionApp = 3;
             QBAuth.createSession(new QBEntityCallback<QBSession>() {
                 @Override
                 public void onSuccess(QBSession session, Bundle params) {
-                    sessionSuccess = 1;
+                    sessionApp = 1;
                     Log.d(Const.ErrorTag, "onSuccess:" + "Success");
-                    if (qbListener != null)
-                        qbListener.onTaskCompleted(sessionSuccess);
+                    if (qbAppListener != null)
+                        qbAppListener.onTaskCompleted(sessionApp);
                 }
 
                 @Override
                 public void onError(QBResponseException error) {
-                    sessionSuccess = 2;
+                    sessionApp = 2;
                     Log.d(Const.ErrorTag, "onError:" + error.getMessage());
-                    if (qbListener != null)
-                        qbListener.onTaskCompleted(sessionSuccess);
+                    if (qbAppListener != null)
+                        qbAppListener.onTaskCompleted(sessionApp);
                 }
             });
-        } else if (qbListener != null)
-            qbListener.onTaskCompleted(sessionSuccess);
+        } else if (qbAppListener != null)
+            qbAppListener.onTaskCompleted(sessionApp);
+
+    }
+
+    public static void createUserSession(QBUser qbUser, final QBUserListener qbUserListener) {
+        if (sessionUser != 1 && sessionUser != 3) {
+            sessionUser = 3;
+            QBAuth.createSession(qbUser, new QBEntityCallback<QBSession>() {
+                @Override
+                public void onSuccess(QBSession session, Bundle params) {
+                    sessionUser = 1;
+                    Log.d(Const.ErrorTag, "onSuccess:" + "Success");
+                    if (qbUserListener != null)
+                        qbUserListener.onTaskCompleted(sessionUser, session);
+                }
+
+                @Override
+                public void onError(QBResponseException error) {
+                    sessionUser = 2;
+                    Log.d(Const.ErrorTag, "onError:" + error.getMessage());
+                    if (qbUserListener != null)
+                        qbUserListener.onTaskCompleted(sessionUser, null);
+                }
+            });
+        } else if (qbUserListener != null)
+            qbUserListener.onTaskCompleted(sessionUser, null);
 
     }
 
@@ -92,15 +121,26 @@ public class SupportMethods {
         prefsHelper.setPassword(password);
     }
 
-    public static ProgressDialog showProgressDialog(ProgressDialog progress, Context context) {
+    public static ProgressDialog showProgressDialog(ProgressDialog progress, Activity activity, @NonNull String message) {
         if (progress == null) {
-            progress = new ProgressDialog(context);
+            progress = new ProgressDialog(activity);
             progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progress.setIndeterminate(true);
             progress.setMessage("Please Wait ...");
             progress.setCancelable(false);
         }
+        if (!progress.isShowing()) {
+            Log.d(Const.ErrorTag, activity + "dialog show");
+            progress.show();
+        }
         return progress;
+    }
+
+    public static void hideProgressDialog(ProgressDialog progressDialog, @NonNull String activity) {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            Log.d(Const.ErrorTag, activity + "dialog show");
+            progressDialog.dismiss();
+        }
     }
 
     public static boolean isLoggedIn() {

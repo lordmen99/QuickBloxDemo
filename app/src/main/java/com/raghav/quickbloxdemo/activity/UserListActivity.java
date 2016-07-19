@@ -1,6 +1,7 @@
 package com.raghav.quickbloxdemo.activity;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -19,8 +20,8 @@ import com.raghav.quickbloxdemo.R;
 import com.raghav.quickbloxdemo.adapter.UserListAdapter;
 import com.raghav.quickbloxdemo.support.Const;
 import com.raghav.quickbloxdemo.support.PrefsHelper;
-import com.raghav.quickbloxdemo.support.QBListener;
 import com.raghav.quickbloxdemo.support.SupportMethods;
+import com.raghav.quickbloxdemo.support.listener.QBAppListener;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 public class UserListActivity extends AppCompatActivity implements QBEntityCallback<ArrayList<QBUser>> {
     static int userNumber = 1;
     private UserListActivity context;
-    private ArrayList<String> users;
+    private ArrayList<QBUser> users;
     private UserListAdapter userListAdapter;
     private PrefsHelper prefsHelper;
     private ArrayList<String> userTags;
@@ -52,6 +53,7 @@ public class UserListActivity extends AppCompatActivity implements QBEntityCallb
         userTags.add(Const.QBTAG);
 
         QBemail = prefsHelper.getEmail();
+        Log.d(Const.ErrorTag, "onCreate:" + QBemail);
 
         getUsers();
 
@@ -62,16 +64,14 @@ public class UserListActivity extends AppCompatActivity implements QBEntityCallb
     }
 
     private void getUsers() {
-        progress = SupportMethods.showProgressDialog(progress, context);
-        if (!progress.isShowing())
-            progress.show();
-        SupportMethods.createSession(new QBListener() {
+        progress = SupportMethods.showProgressDialog(progress, context, "user list get users");
+        SupportMethods.createAppSession(new QBAppListener() {
             @Override
-            public void onTaskCompleted(int sessionSuccess) {
-                if (sessionSuccess == 1) {
+            public void onTaskCompleted(int sessionStatus) {
+                if (sessionStatus == 1) {
                     userListAdapter.deleteAll();
                     retrieveAllUsersFromPage(1);
-                } else if (sessionSuccess == 3) {
+                } else if (sessionStatus == 3) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -79,7 +79,7 @@ public class UserListActivity extends AppCompatActivity implements QBEntityCallb
                         }
                     }, 5000);
                 } else {
-                    progress.dismiss();
+                    SupportMethods.hideProgressDialog(progress, "user list app session error");
                     Log.d(Const.ErrorTag, "register:" + "Error in QBSession Creation");
                 }
             }
@@ -92,7 +92,7 @@ public class UserListActivity extends AppCompatActivity implements QBEntityCallb
         userListAdapter.setOnItemClickListener(new UserListAdapter.MyClickListener() {
             @Override
             public void onItemClick(int position, View v) {
-
+                startActivity(new Intent(context, VideoCallActivity.class).putExtra(Const.UserID, userListAdapter.getItem(position).getId()));
             }
         });
     }
@@ -113,15 +113,13 @@ public class UserListActivity extends AppCompatActivity implements QBEntityCallb
             String email = user.getEmail();
             Log.d(Const.ErrorTag, userNumber + ": " + email + " " + user.getTags());
             if (!QBemail.equalsIgnoreCase(email))
-                userListAdapter.addItem(email, userListAdapter.getItemCount());
+                userListAdapter.addItem(user, userListAdapter.getItemCount());
             userNumber++;
         }
 
         if (userNumber < totalEntries) {
             retrieveAllUsersFromPage(currentPage + 1);
-        } else if (progress.isShowing()) {
-            progress.dismiss();
-        }
+        } else SupportMethods.hideProgressDialog(progress, "user list all entry over");
     }
 
     @Override
