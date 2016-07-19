@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/space5"
+    android:layout_marginTop="@dimen/space5"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/txtUserName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/btnStatus"
+        android:layout_toStartOf="@+id/btnStatus"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/textSize15"
+        android:textStyle="bold" />
+
+    <android.support.v7.widget.AppCompatImageButton
+        android:id="@+id/btnStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_delete"
+        android:visibility="gone" />
+</RelativeLayout>
